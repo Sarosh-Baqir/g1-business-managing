@@ -1,0 +1,1 @@
+ALTER TABLE "supportTicket" ALTER COLUMN "assigned_admin" DROP NOT NULL;

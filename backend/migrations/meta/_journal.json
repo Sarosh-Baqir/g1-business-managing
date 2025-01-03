@@ -1,0 +1,20 @@
+{
+  "version": "5",
+  "dialect": "pg",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1735846823647,
+      "tag": "0000_slimy_quasimodo",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1735918426748,
+      "tag": "0001_known_winter_soldier",
+      "breakpoints": true
+    }
+  ]
+}
