@@ -106,6 +106,53 @@ const completeSellerProfileValidationSchema = z.object({
   description: z.string().min(1).max(1000),
 });
 
+// Define Zod schema for validating PATCH request data
+const updateUserValidationSchema = z.object({
+  first_name: z
+    .string()
+    .trim()
+    .min(1)
+    .regex(/^[A-Za-z\s]+$/, { message: "Only alphabets are allow!" })
+    .optional(),
+  last_name: z
+    .string()
+    .trim()
+    .min(1)
+    .regex(/^[A-Za-z\s]+$/)
+    .optional(),
+  cnic: z
+    .string()
+    .regex(/^\d{5}-\d{7}-\d$/, {
+      message: "cnic should be in '12345-1234567-1' format",
+    })
+    .optional(),
+  bio: z.string().min(1).max(1000).optional(),
+  address: z
+    .object({
+      street_no: z
+        .number({ message: "street_no should be a positive number" })
+        .min(0, { message: "street_no should be a positive number" }),
+      city: z
+        .string()
+        .min(1)
+        .regex(/^[A-Za-z\s]+$/, { message: "City must be a string of characters" }),
+      state: z
+        .string()
+        .min(1)
+        .regex(/^[A-Za-z\s]+$/, { message: "State must be a string of characters" }),
+      postal_code: z.string().min(1).regex(/^\d+$/, { message: "Postal Code must be a string of numbers" }),
+      country: z
+        .string()
+        .min(1)
+        .regex(/^[A-Za-z\s]+$/, { message: "Country must be a string of characters" }),
+      location: z.string().optional(),
+    })
+    .optional(),
+  phone: z.string().trim().min(11).max(15).regex(/^\d+$/).optional(),
+  gender: z.enum(["male", "female", "other"]).optional(),
+})
+
+
 export {
   registerUserValidationSchema,
   verifyUserValidationSchema,
@@ -115,5 +162,6 @@ export {
   updatePasswordValidationSchema,
   resetPasswordValidationSchema,
   completeProfileValidationSchema,
+  updateUserValidationSchema,
   completeSellerProfileValidationSchema,
 };

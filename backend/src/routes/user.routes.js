@@ -9,6 +9,7 @@ import {
   resetPassword,
   logOut,
   switchRole,
+  me,
   completeProfile,
   completeSellerProfile,
   profilePicture,
@@ -23,6 +24,7 @@ import {
   loginValidationSchema,
   updatePasswordValidationSchema,
   resetPasswordValidationSchema,
+  updateUserValidationSchema,
   completeProfileValidationSchema,
   completeSellerProfileValidationSchema,
 } from "../validation_schemas/user.validation.schemas.js";
@@ -102,6 +104,15 @@ router.patch(
   uploadProfilePictureMiddleware,
   profilePicture
 );
+
+router
+  .route("/me")
+  .get(authentication, me)
+  .patch(
+    authentication,
+    validationMiddleware(updateUserValidationSchema, (req) => req.body),
+    me
+  );
 
 router.get("/profile-completion-%", authentication, calculateProfileCompletion);
 
