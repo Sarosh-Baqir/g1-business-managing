@@ -265,8 +265,7 @@ const deleteService = async (req, res) => {
 const uploadServiceCoverPhoto = async (req, res) => {
   try {
     const service_id = req.params.service_id;
-    const coverPhotoPath = req.file.path;
-    //console.log(req);
+    let coverPhotoPath = req.file.path;
 
     // Get the previous cover photo path from the database for the service
     const currentCoverPhoto = await database.query.service.findFirst({
@@ -282,6 +281,7 @@ const uploadServiceCoverPhoto = async (req, res) => {
         fs.unlinkSync(currentCoverPhoto.cover_photo);
       }
     }
+    coverPhotoPath = coverPhotoPath.replace(/^public/, "").replace(/\\/g, "/");
 
     // Update the service with the new cover photo path
     const updatedService = await database
@@ -291,7 +291,7 @@ const uploadServiceCoverPhoto = async (req, res) => {
       .returning();
     console.log(updatedService);
     // Return the updated service with the full cover photo URL
-    updatedService[0].cover_photo = `http://${SERVER_HOST}:${SERVER_PORT}${updatedService[0].cover_photo.replace(/^public/, "").replace(/\\/g, "/")}`;
+    // updatedService[0].cover_photo = `http://${SERVER_HOST}:${SERVER_PORT}${updatedService[0].cover_photo.replace(/^public/, "").replace(/\\/g, "/")}`
 
     return successResponse(
       res,
