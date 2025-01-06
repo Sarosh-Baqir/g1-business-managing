@@ -228,32 +228,66 @@ const verifyOTP = async (req, res) => {
 // API for loggingIn
 const login = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password } = req.body
 
+    // Find user by email
     const data = await database.query.user.findFirst({
       where: eq(user.email, email),
-    });
+    })
+
+    // Check if user exists
     if (!data) {
-      return unauthorizeResponse(res, "User not Registered!");
+      return unauthorizeResponse(res, "User not Registered!")
     }
 
+    // Check if user is verified
     if (!data.is_verified) {
-      return errorResponse(res, "User not verified", 403);
+      return errorResponse(res, "User not verified", 403)
     }
 
-    const isPasswordValid = await bcrypt.compare(password, data.password);
-
+    // Validate password
+    const isPasswordValid = await bcrypt.compare(password, data.password)
     if (!isPasswordValid) {
-      return unauthorizeResponse(res, "Credentials are Wrong!");
+      return unauthorizeResponse(res, "Credentials are Wrong!")
     }
 
-    const token = await createJWTToken(data.id);
-    return successResponse(res, "Login Successfully", { data, token });
-  } catch (error) {
-    return errorResponse(res, error.message, 500);
-  }
-};
+    // Create JWT token
+    const token = await createJWTToken(data.id)
 
+    // Fetch user data along with role information
+    const userData = await database
+      .select({
+        users: {
+          id: user.id,
+          email: user.email,
+          first_name: user.first_name,
+          last_name: user.last_name,
+          phone: user.phone,
+          gender: user.gender,
+          profile_picture: user.profile_picture,
+          cnic: user.cnic,
+          is_verified: user.is_verified,
+          is_admin: user.is_admin,
+          address: user.address,
+          bio: user.bio,
+          is_complete: user.is_complete,
+        },
+        roles: {
+          id: role.id,
+          title: role.title,
+          permissions: role.permissions,
+        },
+      })
+      .from(user)
+      .leftJoin(role, eq(role.id, user.role_id))
+      .where(eq(user.id, data.id))
+
+    // Respond with user data and token
+    return successResponse(res, "Login Successfully", { userData, token })
+  } catch (error) {
+    return errorResponse(res, error.message, 500)
+  }
+}
 // Any user will Update his password
 const updatePassword = async (req, res) => {
   try {
