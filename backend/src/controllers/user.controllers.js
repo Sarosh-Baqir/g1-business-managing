@@ -228,31 +228,31 @@ const verifyOTP = async (req, res) => {
 // API for loggingIn
 const login = async (req, res) => {
   try {
-    const { email, password } = req.body
+    const { email, password } = req.body;
 
     // Find user by email
     const data = await database.query.user.findFirst({
       where: eq(user.email, email),
-    })
+    });
 
     // Check if user exists
     if (!data) {
-      return unauthorizeResponse(res, "User not Registered!")
+      return unauthorizeResponse(res, "User not Registered!");
     }
 
     // Check if user is verified
     if (!data.is_verified) {
-      return errorResponse(res, "User not verified", 403)
+      return errorResponse(res, "User not verified", 403);
     }
 
     // Validate password
-    const isPasswordValid = await bcrypt.compare(password, data.password)
+    const isPasswordValid = await bcrypt.compare(password, data.password);
     if (!isPasswordValid) {
-      return unauthorizeResponse(res, "Credentials are Wrong!")
+      return unauthorizeResponse(res, "Credentials are Wrong!");
     }
 
     // Create JWT token
-    const token = await createJWTToken(data.id)
+    const token = await createJWTToken(data.id);
 
     // Fetch user data along with role information
     const userData = await database
@@ -280,14 +280,14 @@ const login = async (req, res) => {
       })
       .from(user)
       .leftJoin(role, eq(role.id, user.role_id))
-      .where(eq(user.id, data.id))
+      .where(eq(user.id, data.id));
 
     // Respond with user data and token
-    return successResponse(res, "Login Successfully", { userData, token })
+    return successResponse(res, "Login Successfully", { userData, token });
   } catch (error) {
-    return errorResponse(res, error.message, 500)
+    return errorResponse(res, error.message, 500);
   }
-}
+};
 // Any user will Update his password
 const updatePassword = async (req, res) => {
   try {
@@ -483,39 +483,66 @@ const switchRole = async (req, res) => {
 // Enpoint to complete profile
 const completeProfile = async (req, res) => {
   try {
-    const { bio, cnic, Address } = req.body;
-    const addressWithUserId = {
-      ...Address,
-      user_id: req.loggedInUserId,
-    };
+    const { bio, cnic, address } = req.body;
 
-    const add = await database
-      .insert(address)
-      .values(addressWithUserId)
-      .returning();
-    console.log("address in table: ", add);
-
-    const data = await database
+    // Update the user profile fields
+    await database
       .update(user)
       .set({
         bio,
         cnic,
-        address: Address,
+        address,
       })
-      .where(eq(user.id, req.loggedInUserId))
-      .returning({
-        id: user.id,
-        bio: user.bio,
-        cnic: user.cnic,
-        address: user.address,
-      });
-
-    await database
-      .update(user)
-      .set({ is_complete: true })
       .where(eq(user.id, req.loggedInUserId));
 
-    return successResponse(res, "Profile is Updated!", data);
+    // Fetch updated user data along with the role information
+    const [userData] = await database
+      .select({
+        id: user.id,
+        email: user.email,
+        first_name: user.first_name,
+        last_name: user.last_name,
+        phone: user.phone,
+        gender: user.gender,
+        profile_picture: user.profile_picture,
+        cnic: user.cnic,
+        is_verified: user.is_verified,
+        is_admin: user.is_admin,
+        address: user.address,
+        bio: user.bio,
+        is_complete: user.is_complete,
+        role_id: role.id,
+        role_title: role.title,
+        role_permissions: role.permissions, // Add permissions if they are part of the role model
+      })
+      .from(user)
+      .leftJoin(role, eq(role.id, user.role_id)) // Join the role table
+      .where(eq(user.id, req.loggedInUserId)); // Match the logged-in user ID
+
+    // Format the response to merge role fields with user fields
+    const formattedResponse = {
+      id: userData.id,
+      email: userData.email,
+      first_name: userData.first_name,
+      last_name: userData.last_name,
+      phone: userData.phone,
+      gender: userData.gender,
+      profile_picture: userData.profile_picture,
+      cnic: userData.cnic,
+      is_verified: userData.is_verified,
+      is_admin: userData.is_admin,
+      address: userData.address,
+      bio: userData.bio,
+      is_complete: userData.is_complete,
+      role: {
+        id: userData.role_id,
+        title: userData.role_title,
+        permissions: userData.role_permissions,
+      },
+    };
+
+    // Return the flattened data
+    return successResponse(res, "Profile is Updated!", formattedResponse);
   } catch (error) {
     return errorResponse(res, error.message, 500);
   }
