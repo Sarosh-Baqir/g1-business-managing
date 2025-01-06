@@ -44,8 +44,36 @@ const fetchSingleService = async (req, res) => {
 
 const fetchAllServices = async (req, res) => {
   try {
+    const category_id = req.params.category_id;
     if (req.method !== "GET") {
       return errorResponse(res, "Method Not Allowed", 405);
+    }
+    if (category_id) {
+      const services = await database.query.service.findMany({
+        where: eq(service.category_id, category_id),
+        with: {
+          user: {
+            columns: {
+              first_name: true,
+              last_name: true,
+              profile_picture: true,
+            },
+          },
+        },
+      });
+      if (services.length <= 0) {
+        return successResponse(
+          res,
+          "No Services found against this category",
+          services
+        );
+      }
+
+      return successResponse(
+        res,
+        "Successfully fetched Services List against this category",
+        services
+      );
     }
 
     const services = await database.query.service.findMany({
