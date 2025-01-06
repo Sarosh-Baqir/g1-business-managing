@@ -571,12 +571,10 @@ const completeSellerProfile = async (req, res) => {
 
 // Endpoint to upload profile picture
 const profilePicture = async (req, res) => {
-  console.log("in controller");
   try {
-    const profilePicturePath = req.file.path;
+    let profilePicturePath = req.file.path;
 
     // Get the previous profile picture path from the database
-
     const currentPicture = await database.query.user.findFirst({
       where: eq(user.id, req.loggedInUserId),
       columns: {
@@ -589,6 +587,11 @@ const profilePicture = async (req, res) => {
         fs.unlinkSync(currentPicture.profile_picture);
       }
     }
+
+    profilePicturePath = profilePicturePath
+      .replace(/^public/, "") // Remove 'public' from the beginning
+      .replace(/\\/g, "/"); // Replace backslashes with forward slashes
+
     const updatedUser = await database
       .update(user)
       .set({ profile_picture: profilePicturePath })
@@ -598,13 +601,15 @@ const profilePicture = async (req, res) => {
         email: user.email,
         profile_picture: user.profile_picture,
       });
-    // making it full link to access through the browser
-    updatedUser[0].profile_picture = `http://${SERVER_HOST}:${SERVER_PORT}${updatedUser[0].profile_picture.replace(/^public/, "").replace(/\\/g, "/")}`;
-    return successResponse(
-      res,
-      "Profile picture is set successfully!",
-      updatedUser
-    );
+
+    // Correctly format the path: Remove 'public' and replace backslashes with forward slashes
+    // const relativeProfilePicturePath = updatedUser[0].profile_picture
+    //   .replace(/^public/, "") // Remove 'public' from the beginning
+    //   .replace(/\\/g, "/") // Replace backslashes with forward slashes
+
+    return successResponse(res, "Profile picture is set successfully!", {
+      profile_picture: updatedUser[0].profile_picture, // Only return the relative path
+    });
   } catch (error) {
     return errorResponse(res, error.message, 500);
   }
