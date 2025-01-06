@@ -15,6 +15,13 @@
       "when": 1735918426748,
       "tag": "0001_known_winter_soldier",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1735995952480,
+      "tag": "0002_wooden_roxanne_simpson",
+      "breakpoints": true
     }
   ]
 }

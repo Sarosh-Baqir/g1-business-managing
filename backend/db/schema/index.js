@@ -12,6 +12,8 @@ import {
 } from "./supportTicket.js";
 import { wallet, walletRelations } from "./wallet.js";
 import { review, reviewRelations } from "./review.js";
+import message from "./message.js";
+import conversation from "./conversation.js";
 
 const schema = [
   user,
@@ -33,6 +35,8 @@ const schema = [
   supportTicketRelations,
   wallet,
   walletRelations,
+  message,
+  conversation,
   // Add more schemas as needed
 ];
 

@@ -18,6 +18,8 @@ import * as sellerProfile from "./schema/sellerProfile.js";
 import * as service from "./schema/service.js";
 import * as order from "./schema/order.js";
 import * as review from "./schema/review.js";
+import message from "./schema/message.js";
+import conversation from "./schema/conversation.js";
 
 const { Pool } = pkg;
 
@@ -62,5 +64,7 @@ export const database = drizzle(pool, {
     ...service,
     ...order,
     ...review,
+    message,
+    conversation,
   },
 });

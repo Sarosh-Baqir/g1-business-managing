@@ -11,6 +11,8 @@ import {
   switchRole,
   completeProfile,
   completeSellerProfile,
+  profilePicture,
+  calculateProfileCompletion,
 } from "../controllers/user.controllers.js";
 import { validationMiddleware } from "../middlewares/validation_schema.js";
 import {
@@ -28,6 +30,7 @@ import {
   authentication,
   authorization,
   checkUserAlreadyRegistered,
+  uploadProfilePictureMiddleware,
 } from "../middlewares/auth_middlewares.js";
 import { USER_ROLE } from "../utils/constants.js";
 
@@ -92,5 +95,14 @@ router.patch(
   ),
   completeSellerProfile
 );
+
+router.patch(
+  "/profile-picture",
+  authentication,
+  uploadProfilePictureMiddleware,
+  profilePicture
+);
+
+router.get("/profile-completion-%", authentication, calculateProfileCompletion);
 
 export default router;

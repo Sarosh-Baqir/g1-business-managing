@@ -4,7 +4,7 @@ import { database } from "../../db/database.js";
 import { user } from "../../db/schema/user.js";
 import { address } from "../../db/schema/address.js";
 import role from "../../db/schema/role.js";
-
+import fs from "fs";
 import blackListToken from "../../db/schema/blacklisttoken.js";
 import {
   createOTP,
@@ -20,7 +20,7 @@ import {
 import sendEmail from "../utils/sendEmail.js";
 import { getOrCreateRole } from "../../db/customqueries/queries.js";
 
-import { USER_ROLE } from "../utils/constants.js";
+import { SERVER_PORT, SERVER_HOST, USER_ROLE } from "../utils/constants.js";
 import { sellerProfile } from "../../db/schema/sellerProfile.js";
 
 // API to register a new user
@@ -476,6 +476,11 @@ const completeProfile = async (req, res) => {
         address: user.address,
       });
 
+    await database
+      .update(user)
+      .set({ is_complete: true })
+      .where(eq(user.id, req.loggedInUserId));
+
     return successResponse(res, "Profile is Updated!", data);
   } catch (error) {
     return errorResponse(res, error.message, 500);
@@ -503,6 +508,107 @@ const completeSellerProfile = async (req, res) => {
   }
 };
 
+// Endpoint to upload profile picture
+const profilePicture = async (req, res) => {
+  console.log("in controller");
+  try {
+    const profilePicturePath = req.file.path;
+
+    // Get the previous profile picture path from the database
+
+    const currentPicture = await database.query.user.findFirst({
+      where: eq(user.id, req.loggedInUserId),
+      columns: {
+        profile_picture: true,
+      },
+    });
+
+    if (currentPicture && currentPicture.profile_picture) {
+      if (fs.existsSync(currentPicture.profile_picture)) {
+        fs.unlinkSync(currentPicture.profile_picture);
+      }
+    }
+    const updatedUser = await database
+      .update(user)
+      .set({ profile_picture: profilePicturePath })
+      .where(eq(user.id, req.loggedInUserId))
+      .returning({
+        id: user.id,
+        email: user.email,
+        profile_picture: user.profile_picture,
+      });
+    // making it full link to access through the browser
+    updatedUser[0].profile_picture = `http://${SERVER_HOST}:${SERVER_PORT}${updatedUser[0].profile_picture.replace(/^public/, "").replace(/\\/g, "/")}`;
+    return successResponse(
+      res,
+      "Profile picture is set successfully!",
+      updatedUser
+    );
+  } catch (error) {
+    return errorResponse(res, error.message, 500);
+  }
+};
+
+const calculateProfileCompletion = async (req, res) => {
+  try {
+    // Fetch user profile
+    const userProfile = await database.query.user.findFirst({
+      where: eq(user.id, req.loggedInUserId),
+      columns: {
+        bio: true,
+        cnic: true,
+        address: true,
+      },
+    });
+
+    // Calculate user profile completion
+    const userFields = ["bio", "cnic", "address"];
+    const userCompletedFields = userFields.filter(
+      (field) => userProfile[field] !== null && userProfile[field] !== undefined
+    ).length;
+
+    let userCompletionPercentage =
+      (userCompletedFields / userFields.length) * 100;
+
+    let sellerCompletionPercentage = 0;
+
+    // Check if the user is a seller
+    const sellerProfilee = await database.query.sellerProfile.findFirst({
+      where: eq(sellerProfile.user_id, req.loggedInUserId),
+      columns: {
+        qualification: true,
+        experiance: true,
+        description: true,
+      },
+    });
+
+    if (sellerProfilee) {
+      // Calculate seller profile completion
+      const sellerFields = ["qualification", "experiance", "description"];
+      const sellerCompletedFields = sellerFields.filter(
+        (field) =>
+          sellerProfilee[field] !== null && sellerProfilee[field] !== undefined
+      ).length;
+
+      sellerCompletionPercentage =
+        (sellerCompletedFields / sellerFields.length) * 100;
+    }
+
+    const response = {
+      userCompletionPercentage: Math.round(userCompletionPercentage),
+      sellerCompletionPercentage: Math.round(sellerCompletionPercentage),
+    };
+
+    return successResponse(
+      res,
+      "Profile completion percentages retrieved successfully!",
+      response
+    );
+  } catch (error) {
+    return errorResponse(res, error.message, 500);
+  }
+};
+
 export {
   registerUser,
   verifyUser,
@@ -515,4 +621,6 @@ export {
   switchRole,
   completeProfile,
   completeSellerProfile,
+  profilePicture,
+  calculateProfileCompletion,
 };

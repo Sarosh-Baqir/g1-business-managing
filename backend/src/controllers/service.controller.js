@@ -266,7 +266,7 @@ const uploadServiceCoverPhoto = async (req, res) => {
   try {
     const service_id = req.params.service_id;
     const coverPhotoPath = req.file.path;
-    console.log(req);
+    //console.log(req);
 
     // Get the previous cover photo path from the database for the service
     const currentCoverPhoto = await database.query.service.findFirst({
