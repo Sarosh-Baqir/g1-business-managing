@@ -615,19 +615,23 @@ const profilePicture = async (req, res) => {
   }
 };
 
-
 const me = async (req, res) => {
   try {
     if (req.method === "GET") {
-      const data = await database.select().from(user).where(eq(user.id, req.loggedInUserId)).leftJoin(role, eq(role.id, user.role_id))
+      const data = await database
+        .select()
+        .from(user)
+        .where(eq(user.id, req.loggedInUserId))
+        .leftJoin(role, eq(role.id, user.role_id));
 
       if (!data) {
-        return successResponse(res, "No data Found against this user", data)
+        return successResponse(res, "No data Found against this user", data);
       }
-      return successResponse(res, "User data is fetched successfully!", data)
+      return successResponse(res, "User data is fetched successfully!", data);
     }
     if (req.method === "PATCH") {
-      const { first_name, last_name, cnic, bio, address, phone, gender } = req.body
+      const { first_name, last_name, cnic, bio, address, phone, gender } =
+        req.body;
       const data = await database
         .update(user)
         .set({
@@ -640,17 +644,16 @@ const me = async (req, res) => {
           gender,
         })
         .where(eq(user.id, req.loggedInUserId))
-        .returning()
+        .returning();
       if (data.length === 0) {
-        return successResponse(res, "User Data is not updated!", data)
+        return successResponse(res, "User Data is not updated!", data);
       }
-      return successResponse(res, "User Data is updated!", data)
+      return successResponse(res, "User Data is updated!", data);
     }
   } catch (error) {
-    return errorResponse(res, error.message, 500)
+    return errorResponse(res, error.message, 500);
   }
-}
-
+};
 
 const calculateProfileCompletion = async (req, res) => {
   try {

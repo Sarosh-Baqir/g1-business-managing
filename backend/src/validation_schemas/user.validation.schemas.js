@@ -19,8 +19,13 @@ const registerUserValidationSchema = z.object({
     .min(1)
     .regex(/^[A-Za-z\s]+$/),
   email: z.string().trim().min(1).email(),
-  phone: z.string().trim().min(11).max(15).regex(/^\d+$/),
-  gender: z.enum(["male", "female", "other"]),
+  phone: z
+    .string()
+    .trim()
+    .regex(/^\+?\d+$/, {
+      message:
+        "Phone number must contain only numbers and an optional leading '+' symbol",
+    }),
   password: z.string().trim().min(8).refine(passwordContainsMixture, {
     message: "Password must be a mixture of numbers and characters",
   }),
@@ -135,23 +140,31 @@ const updateUserValidationSchema = z.object({
       city: z
         .string()
         .min(1)
-        .regex(/^[A-Za-z\s]+$/, { message: "City must be a string of characters" }),
+        .regex(/^[A-Za-z\s]+$/, {
+          message: "City must be a string of characters",
+        }),
       state: z
         .string()
         .min(1)
-        .regex(/^[A-Za-z\s]+$/, { message: "State must be a string of characters" }),
-      postal_code: z.string().min(1).regex(/^\d+$/, { message: "Postal Code must be a string of numbers" }),
+        .regex(/^[A-Za-z\s]+$/, {
+          message: "State must be a string of characters",
+        }),
+      postal_code: z
+        .string()
+        .min(1)
+        .regex(/^\d+$/, { message: "Postal Code must be a string of numbers" }),
       country: z
         .string()
         .min(1)
-        .regex(/^[A-Za-z\s]+$/, { message: "Country must be a string of characters" }),
+        .regex(/^[A-Za-z\s]+$/, {
+          message: "Country must be a string of characters",
+        }),
       location: z.string().optional(),
     })
     .optional(),
   phone: z.string().trim().min(11).max(15).regex(/^\d+$/).optional(),
   gender: z.enum(["male", "female", "other"]).optional(),
-})
-
+});
 
 export {
   registerUserValidationSchema,
