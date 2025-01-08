@@ -305,6 +305,7 @@ class AuthService {
         headers: _generateHeaders(accessToken: accessToken),
         body: body,
       );
+      print(response.body);
       return response; // Return the http.Response object
     } catch (e) {
       print('Error completing profile: $e');

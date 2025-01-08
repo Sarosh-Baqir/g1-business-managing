@@ -477,7 +477,7 @@ const switchRole = async (req, res) => {
 // Enpoint to complete profile
 const completeProfile = async (req, res) => {
   try {
-    const { bio, cnic, address } = req.body;
+    const { bio, cnic, address, gender } = req.body;
 
     // Update the user profile fields
     await database
@@ -486,6 +486,7 @@ const completeProfile = async (req, res) => {
         bio,
         cnic,
         address,
+        gender
       })
       .where(eq(user.id, req.loggedInUserId));
 

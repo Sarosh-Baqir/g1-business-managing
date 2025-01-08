@@ -75,32 +75,21 @@ const completeProfileValidationSchema = z.object({
   cnic: z.string().regex(/^\d{5}-\d{7}-\d$/, {
     message: "cnic in '12345-1234567-1' format",
   }),
-  Address: z.object({
-    street_no: z
-      .number({ message: "street_no should be a positive number" })
-      .min(0, { message: "street_no should be a positive number" }),
+  address: z.object({
+    street_no: z.number({ message: "street_no should be a positive number" }).min(0, { message: "street_no should be a positive number" }),
     city: z
       .string()
       .min(1)
-      .regex(/^[A-Za-z\s]+$/, {
-        message: "City must be a string of characters",
-      }),
+      .regex(/^[A-Za-z\s]+$/, { message: "City must be a string of characters" }),
     state: z
       .string()
       .min(1)
-      .regex(/^[A-Za-z\s]+$/, {
-        message: "State must be a string of characters",
-      }),
-    postal_code: z
-      .string()
-      .min(1)
-      .regex(/^\d+$/, { message: "Postal Code must be a string of numbers" }),
+      .regex(/^[A-Za-z\s]+$/, { message: "State must be a string of characters" }),
+    postal_code: z.string().min(1).regex(/^\d+$/, { message: "Postal Code must be a string of numbers" }),
     country: z
       .string()
       .min(1)
-      .regex(/^[A-Za-z\s]+$/, {
-        message: "Country must be a string of characters",
-      }),
+      .regex(/^[A-Za-z\s]+$/, { message: "Country must be a string of characters" }),
     location: z.string().optional(),
   }),
 });
