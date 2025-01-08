@@ -114,6 +114,6 @@ router
     me
   );
 
-router.get("/profile-completion-%", authentication, calculateProfileCompletion);
+router.get("/profile-completion", authentication, calculateProfileCompletion);
 
 export default router;

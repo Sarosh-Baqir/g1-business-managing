@@ -21,6 +21,15 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<AuthenticationProvider>(context, listen: false).getProfileCompletion();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     return Consumer<AuthenticationProvider>(
@@ -59,8 +68,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         errorWidget: (context, url, error) {
                           // Print the error to debug
                           debugPrint('Image load error: $error');
-                          return Image.asset(
-                              'assets/images/default-user.jpg');
+                          return Image.asset('assets/images/default-user.jpg');
                         },
                       ),
                     ),
@@ -95,29 +103,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   const SizedBox(height: 8),
                   Padding(
                     padding:
-                        EdgeInsets.symmetric(horizontal: size.height * 0.02),
+                        EdgeInsets.symmetric(horizontal: size.height * 0.01),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text(
-                              "Profile Completion",
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            Icon(
-                                authProvider.user!.isComplete == true
-                                    ? IconlyLight.tick_square
-                                    : Icons.error,
-                                size: 25,
-                                color: authProvider.user!.isComplete == true
-                                    ? AppTheme.fMainColor
-                                    : Colors.red),
-                          ],
+                        const Text(
+                          "Profile Completion",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'User Completion: ${authProvider.profileCompletion?.userCompletionPercentage}%',
+                          style: const TextStyle(fontSize: 14),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Seller Completion: ${authProvider.profileCompletion?.sellerCompletionPercentage}%',
+                          style: const TextStyle(fontSize: 14),
                         ),
                         const SizedBox(
                           height: 5,

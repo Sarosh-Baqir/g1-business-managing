@@ -1,5 +1,6 @@
 // ignore_for_file: use_build_context_synchronously, avoid_print
 
+import 'package:e_commerce/models/auth/profile_completion.dart';
 import 'package:e_commerce/models/tokens/auth_tokens.dart';
 import 'package:e_commerce/utils/api_constnsts.dart';
 import 'package:flutter/material.dart';
@@ -537,6 +538,31 @@ class AuthenticationProvider extends ChangeNotifier {
       notifyListeners(); // Notify listeners on error to update the UI
       print('Error in swiching role: $e');
       return 500; // Return a default error status code
+    }
+  }
+
+  ProfileCompletion? profileCompletion;
+  String? errorMessage;
+
+  Future<void> getProfileCompletion() async {
+    _isLoading = true;
+    notifyListeners();
+
+    try {
+      final response = await _authService.fetchProfileCompletion();
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        profileCompletion = ProfileCompletion.fromJson(data['data']);
+        errorMessage = null;
+      } else {
+        errorMessage = 'Error: ${response.statusCode} ${response.reasonPhrase}';
+      }
+    } catch (e) {
+      errorMessage = 'Exception: $e';
+    } finally {
+      _isLoading = false;
+      notifyListeners();
     }
   }
 

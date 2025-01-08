@@ -400,4 +400,29 @@ class AuthService {
       rethrow; // Rethrow to allow higher-level handling
     }
   }
+
+  Future<http.Response> fetchProfileCompletion() async {
+    final url = Uri.parse(
+        '${Constants.baseUrl}${Constants.userApiPath}/profile-completion');
+    final accessToken = await getAccessToken();
+    print(url);
+
+    if (accessToken == null) {
+      throw Exception("Access token is missing.");
+    }
+
+    try {
+      final response = await http.get(
+        url,
+        headers: {
+          'Authorization': 'Bearer $accessToken',
+          'Content-Type': 'application/json',
+        },
+      );
+      print(response.body);
+      return response;
+    } catch (e) {
+      throw Exception('Failed to fetch profile completion: $e');
+    }
+  }
 }
