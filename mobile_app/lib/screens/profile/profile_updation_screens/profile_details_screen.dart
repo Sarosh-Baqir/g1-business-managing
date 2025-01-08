@@ -273,7 +273,10 @@ class ProfileDetailsScreen extends StatelessWidget {
                   ),
                   const Divider(),
                   customListTileMethod(
-                      "National ID Card", "${authProvider.user!.cnic}"),
+                      "National ID Card", "${authProvider.user?.cnic}"),
+                  const Divider(),
+                  customListTileMethod("National ID Card",
+                      "${authProvider.user?.gender.toString().toUpperCase()}"),
                   const Divider(),
                   customListTileMethod(
                       'Country', authProvider.user!.address!.country),
