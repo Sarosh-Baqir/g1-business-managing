@@ -326,6 +326,7 @@ class AuthService {
         url,
         headers: _generateHeaders(accessToken: accessToken),
       );
+      print(response.body);
       return response; // Return the http.Response object
     } catch (e) {
       print('Error switching role: $e');

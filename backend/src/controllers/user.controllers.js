@@ -438,10 +438,8 @@ const switchRole = async (req, res) => {
       .from(user)
       .where(eq(user.id, req.loggedInUserId))
       .leftJoin(role, eq(role.id, user.role_id));
-
-    if (userData[0]?.roles?.title === USER_ROLE.CUSTOMER) {
+    if (userData[0].roles.title === USER_ROLE.CUSTOMER) {
       const roleData = await getOrCreateRole(USER_ROLE.SERVICE_PROVIDER);
-
       const data = await database
         .update(user)
         .set({
@@ -449,23 +447,14 @@ const switchRole = async (req, res) => {
         })
         .where(eq(user.id, req.loggedInUserId))
         .returning();
-      return successResponse(res, "User become a service provider!", data);
+      const userData = await database
+        .select()
+        .from(user)
+        .where(eq(user.id, req.loggedInUserId))
+        .leftJoin(role, eq(role.id, user.role_id));
+      return successResponse(res, "User become a service provider!", userData);
     }
     const roleData = await getOrCreateRole(USER_ROLE.CUSTOMER);
-
-    // try {
-    //   await sendEmail("Account Updated", `Hello ${userData[0].users.first_name}`, `<h1>Hello ${userData[0].users.first_name} ${userData[0].users.last_name}</h1><h3>Hurray! Congratulations.</h3><p>Your account has been updated to <strong>service provider</strong>.</p><p> Now you can create services to sell and earn with us.</p>`, userData[0].users.email);
-    //   const data = await database
-    //   .update(user)
-    //   .set({
-    //     role_id: roleData.id
-    //   })
-    //   .where(eq(user.id, req.loggedInUserId))
-    //     .returning()
-    //   return successResponse(res, "User become a service provider!", data)
-    // } catch (error) {
-    //   return errorResponse(res, `Error in sending email = ${error.message}`, 400);
-    // }
 
     const data = await database
       .update(user)
@@ -474,7 +463,12 @@ const switchRole = async (req, res) => {
       })
       .where(eq(user.id, req.loggedInUserId))
       .returning();
-    return successResponse(res, "User become a customer!", data);
+    const userData2 = await database
+      .select()
+      .from(user)
+      .where(eq(user.id, req.loggedInUserId))
+      .leftJoin(role, eq(role.id, user.role_id));
+    return successResponse(res, "User become a customer!", userData2);
   } catch (error) {
     return errorResponse(res, error.message, 500);
   }
