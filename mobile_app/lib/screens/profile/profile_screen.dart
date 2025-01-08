@@ -25,7 +25,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     // TODO: implement initState
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<AuthenticationProvider>(context, listen: false).getProfileCompletion();
+      Provider.of<AuthenticationProvider>(context, listen: false)
+          .getProfileCompletion();
     });
   }
 
@@ -103,7 +104,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   const SizedBox(height: 8),
                   Padding(
                     padding:
-                        EdgeInsets.symmetric(horizontal: size.height * 0.01),
+                        EdgeInsets.symmetric(horizontal: size.height * 0.02),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -114,26 +115,37 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'User Completion: ${authProvider.profileCompletion?.userCompletionPercentage}%',
-                          style: const TextStyle(fontSize: 14),
+                        const SizedBox(height: 12),
+                        Row(
+                          children: [
+                            const Text(
+                              "Buyer Profile Completion",
+                              style: TextStyle(fontSize: 14),
+                            ),
+                            const Spacer(),
+                            Text(
+                              '${authProvider.profileCompletion?.userCompletionPercentage}%',
+                              style: const TextStyle(fontSize: 14),
+                            ),
+                          ],
                         ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'Seller Completion: ${authProvider.profileCompletion?.sellerCompletionPercentage}%',
-                          style: const TextStyle(fontSize: 14),
+                        const SizedBox(height: 12),
+                        Row(
+                          children: [
+                            const Text(
+                              "Seller Profile Completion",
+                              style: TextStyle(fontSize: 14),
+                            ),
+                            const Spacer(),
+                            Text(
+                              '${authProvider.profileCompletion?.sellerCompletionPercentage}%',
+                              style: const TextStyle(fontSize: 14),
+                            ),
+                          ],
                         ),
                         const SizedBox(
                           height: 5,
                         ),
-                        const Text(
-                          "Complete your profile to appear more trustworthy.",
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w300,
-                          ),
-                        )
                       ],
                     ),
                   ),
