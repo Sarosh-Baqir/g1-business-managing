@@ -254,7 +254,7 @@ const login = async (req, res) => {
     // Create JWT token
     const token = await createJWTToken(data.id);
 
-    // Fetch user data along with role information
+    // Fetch user data along with role and seller profile information
     const userData = await database
       .select({
         users: {
@@ -277,17 +277,32 @@ const login = async (req, res) => {
           title: role.title,
           permissions: role.permissions,
         },
+        sellerProfile: {
+          id: sellerProfile.id,
+          qualification: sellerProfile.qualification,
+          experiance: sellerProfile.experiance,
+          description: sellerProfile.description,
+        },
       })
       .from(user)
       .leftJoin(role, eq(role.id, user.role_id))
-      .where(eq(user.id, data.id));
+      .leftJoin(sellerProfile, eq(sellerProfile.user_id, user.id))
+      .where(eq(user.id, data.id))
+      .then((result) => result[0]); // Extract the first result if it returns as an array
+
+    // Validate userData
+    if (!userData || !userData.users) {
+      return errorResponse(res, "Failed to fetch user data", 500);
+    }
 
     // Respond with user data and token
     return successResponse(res, "Login Successfully", { userData, token });
   } catch (error) {
+    console.error("Login Error:", error);
     return errorResponse(res, error.message, 500);
   }
 };
+
 // Any user will Update his password
 const updatePassword = async (req, res) => {
   try {
@@ -486,7 +501,7 @@ const completeProfile = async (req, res) => {
         bio,
         cnic,
         address,
-        gender
+        gender,
       })
       .where(eq(user.id, req.loggedInUserId));
 

@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:e_commerce/common/dialog_box/logout_dialogbox.dart';
 import 'package:e_commerce/common/slide_page_routes/slide_page_route.dart';
+import 'package:e_commerce/common/snakbar/custom_snakbar.dart';
 import 'package:e_commerce/providers/authentication/authentication_provider.dart';
 import 'package:e_commerce/screens/profile/more_screens/account_screens/account_screen.dart';
 import 'package:e_commerce/screens/profile/profile_updation_screens/profile_details_screen.dart';
@@ -100,23 +101,43 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                   const SizedBox(height: 8),
                   const Divider(),
-
-                  const SizedBox(height: 8),
-                  Padding(
-                    padding:
-                        EdgeInsets.symmetric(horizontal: size.height * 0.02),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          "Profile Completion",
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
+                  const SizedBox(height: 12),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 14),
+                        child: Row(
+                          children: [
+                            const Text(
+                              "Profile Completion",
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const Spacer(),
+                            Tooltip(
+                              message:
+                                  "Complete your profile to become more trustful",
+                              child: InkWell(
+                                  onTap: () {
+                                    showCustomSnackBar(
+                                        context,
+                                        "Complete your profile to become more trustful.",
+                                        Colors.blue);
+                                  },
+                                  child: const Icon(Icons.info_outline)),
+                            ),
+                          ],
                         ),
-                        const SizedBox(height: 12),
-                        Row(
+                      ),
+                      const SizedBox(height: 12),
+                      const Divider(),
+                      const SizedBox(height: 12),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 14),
+                        child: Row(
                           children: [
                             const Text(
                               "Buyer Profile Completion",
@@ -129,8 +150,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             ),
                           ],
                         ),
-                        const SizedBox(height: 12),
-                        Row(
+                      ),
+                      const SizedBox(height: 12),
+                      const Divider(),
+                      const SizedBox(height: 12),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 14),
+                        child: Row(
                           children: [
                             const Text(
                               "Seller Profile Completion",
@@ -143,11 +169,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             ),
                           ],
                         ),
-                        const SizedBox(
-                          height: 5,
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 8),
                   const Divider(),
@@ -182,9 +205,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             fontWeight: FontWeight.w500, fontSize: 14),
                       ),
                       onTap: () {
-                        Navigator.of(context).push(
-                          SlidePageRoute(page: const CreateServiceScreen()),
-                        );
+                        if (authProvider
+                                .profileCompletion?.sellerCompletionPercentage
+                                .toString() !=
+                            "100%") {
+                          showCustomSnackBar(
+                              context,
+                              'Please complete your seller profile to create a new service.',
+                              Colors.red);
+                          return;
+                        } else {
+                          Navigator.of(context).push(
+                            SlidePageRoute(page: const CreateServiceScreen()),
+                          );
+                        }
                       },
                     ),
                     const Divider(),
@@ -201,11 +235,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             fontWeight: FontWeight.w500, fontSize: 14),
                       ),
                       onTap: () {
-                        Navigator.of(context).push(
-                          SlidePageRoute(
-                            page: const MyServicesScreen(),
-                          ),
-                        );
+                        if (authProvider
+                                .profileCompletion?.sellerCompletionPercentage
+                                .toString() !=
+                            "100%") {
+                          showCustomSnackBar(
+                              context,
+                              'Please complete your seller profile to view your services.',
+                              Colors.red);
+                        } else {
+                          Navigator.of(context).push(
+                            SlidePageRoute(
+                              page: const MyServicesScreen(),
+                            ),
+                          );
+                        }
                       },
                     ),
                     const Divider(),

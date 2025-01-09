@@ -9,7 +9,7 @@
 // }
 
 class Constants {
-  static const String baseUrl = 'http://10.0.2.2:5000';
+  static const String baseUrl = 'http://10.0.2.2:3000';
   static const String userApiPath = '/api/users';
   static const String userCategory = '/api/category';
   static const String userApiService = '/api/services';

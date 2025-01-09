@@ -124,6 +124,7 @@ class AuthService {
         headers: _generateHeaders(),
         body: body,
       );
+      print(response.body);
       return response; // Returning the http.Response
     } catch (e) {
       print('Error during login: $e');

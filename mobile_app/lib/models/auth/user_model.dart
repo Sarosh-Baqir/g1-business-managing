@@ -1,5 +1,6 @@
 import 'package:e_commerce/models/auth/address_model.dart';
 import 'package:e_commerce/models/auth/role_model.dart';
+import 'package:e_commerce/models/auth/seller_profile.dart';
 import 'package:e_commerce/utils/api_constnsts.dart';
 
 class UserModel {
@@ -20,6 +21,7 @@ class UserModel {
   final String? roleId;
   final bool? isComplete;
   final Roles? role;
+  final SellerProfile? sellerProfile;
 
   UserModel({
     this.id,
@@ -39,6 +41,7 @@ class UserModel {
     this.roleId,
     this.isComplete,
     this.role,
+    this.sellerProfile,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
@@ -122,14 +125,17 @@ class UserModel {
   }
 
   factory UserModel.fromJsonForLogin(Map<String, dynamic> json) {
-    // Extract the first item from the `userData` list
-    final userDataList = json['data']['userData'] as List?;
-    if (userDataList == null || userDataList.isEmpty) {
-      throw Exception("Invalid or empty user data in response");
+    // Extract the `userData` object from the response
+    final userData = json['data']['userData'] as Map<String, dynamic>?;
+
+    if (userData == null) {
+      throw Exception("Invalid or missing user data in response");
     }
 
-    final userJson = userDataList[0]['users'] as Map<String, dynamic>?;
-    final roleJson = userDataList[0]['roles'] as Map<String, dynamic>?;
+    final userJson = userData['users'] as Map<String, dynamic>?;
+    final roleJson = userData['roles'] as Map<String, dynamic>?;
+    final sellerProfileJson =
+        userData['sellerProfile'] as Map<String, dynamic>?;
 
     if (userJson == null) {
       throw Exception("Invalid or empty user data in response");
@@ -166,6 +172,9 @@ class UserModel {
       role: roleJson != null
           ? Roles.fromJson(roleJson)
           : Roles(id: '', title: '', permissions: []),
+      sellerProfile: sellerProfileJson != null
+          ? SellerProfile.fromJson(sellerProfileJson)
+          : null, // Handle seller profile
     );
   }
 }
