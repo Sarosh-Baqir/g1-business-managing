@@ -145,6 +145,7 @@ class AuthService {
     try {
       final response = await http.get(url,
           headers: _generateHeaders(accessToken: accessToken));
+    print(response.body);
       return response; // Returning the http.Response
     } catch (e) {
       print("Error occurred: $e");
