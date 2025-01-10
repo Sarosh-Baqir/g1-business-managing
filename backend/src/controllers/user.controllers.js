@@ -452,7 +452,8 @@ const switchRole = async (req, res) => {
       .select()
       .from(user)
       .where(eq(user.id, req.loggedInUserId))
-      .leftJoin(role, eq(role.id, user.role_id));
+      .leftJoin(role, eq(role.id, user.role_id))
+      .leftJoin(sellerProfile, eq(sellerProfile.id, user.id));
     if (userData[0].roles.title === USER_ROLE.CUSTOMER) {
       const roleData = await getOrCreateRole(USER_ROLE.SERVICE_PROVIDER);
       const data = await database
@@ -466,7 +467,8 @@ const switchRole = async (req, res) => {
         .select()
         .from(user)
         .where(eq(user.id, req.loggedInUserId))
-        .leftJoin(role, eq(role.id, user.role_id));
+        .leftJoin(role, eq(role.id, user.role_id))
+        .leftJoin(sellerProfile, eq(sellerProfile.id, user.id));
       return successResponse(res, "User become a service provider!", userData);
     }
     const roleData = await getOrCreateRole(USER_ROLE.CUSTOMER);
@@ -482,7 +484,8 @@ const switchRole = async (req, res) => {
       .select()
       .from(user)
       .where(eq(user.id, req.loggedInUserId))
-      .leftJoin(role, eq(role.id, user.role_id));
+      .leftJoin(role, eq(role.id, user.role_id))
+      .leftJoin(sellerProfile, eq(sellerProfile.user_id, user.id));
     return successResponse(res, "User become a customer!", userData2);
   } catch (error) {
     return errorResponse(res, error.message, 500);
@@ -629,61 +632,21 @@ const me = async (req, res) => {
   try {
     if (req.method === "GET") {
       const data = await database
-        .select({
-          users: {
-            id: user.id,
-            email: user.email,
-            first_name: user.first_name,
-            last_name: user.last_name,
-            phone: user.phone,
-            gender: user.gender,
-            profile_picture: user.profile_picture,
-            cnic: user.cnic,
-            is_verified: user.is_verified,
-            is_admin: user.is_admin,
-            address: user.address,
-            bio: user.bio,
-            is_complete: user.is_complete,
-          },
-          roles: {
-            id: role.id,
-            title: role.title,
-            permissions: role.permissions,
-          },
-          sellerProfile: {
-            id: sellerProfile.id,
-            qualification: sellerProfile.qualification,
-            experience: sellerProfile.experiance,
-            description: sellerProfile.description,
-          },
-        })
+        .select()
         .from(user)
+        .where(eq(user.id, req.loggedInUserId))
         .leftJoin(role, eq(role.id, user.role_id))
-        .leftJoin(sellerProfile, eq(sellerProfile.user_id, user.id))
-        .where(eq(user.id, req.loggedInUserId));
+        .leftJoin(sellerProfile, eq(sellerProfile.user_id, user.id));
 
-      if (data.length === 0) {
-        return successResponse(res, "No data found for this user", data);
+      if (!data) {
+        return successResponse(res, "No data Found against this user", data);
       }
-      return successResponse(res, "User data fetched successfully!", data[0]);
+      return successResponse(res, "User data is fetched successfully!", data);
     }
-
     if (req.method === "PATCH") {
-      const {
-        first_name,
-        last_name,
-        cnic,
-        bio,
-        address,
-        phone,
-        gender,
-        qualification,
-        experience,
-        description,
-      } = req.body;
-
-      // Step 1: Update the user data
-      const userData = await database
+      const { first_name, last_name, cnic, bio, address, phone, gender } =
+        req.body;
+      const data = await database
         .update(user)
         .set({
           first_name,
@@ -696,53 +659,10 @@ const me = async (req, res) => {
         })
         .where(eq(user.id, req.loggedInUserId))
         .returning();
-
-      if (userData.length === 0) {
-        return successResponse(res, "User data is not updated!", userData);
+      if (data.length === 0) {
+        return successResponse(res, "User Data is not updated!", data);
       }
-
-      // Step 2: Update the seller profile data if available
-      let sellerProfileData = null;
-      if (qualification || experience || description) {
-        // Check if seller profile already exists
-        const existingSellerProfile = await database
-          .select()
-          .from(sellerProfile)
-          .where(eq(sellerProfile.user_id, req.loggedInUserId));
-
-        if (existingSellerProfile.length > 0) {
-          // Update existing seller profile
-          sellerProfileData = await database
-            .update(sellerProfile)
-            .set({
-              qualification,
-              experiance: experience,
-              description,
-            })
-            .where(eq(sellerProfile.user_id, req.loggedInUserId))
-            .returning();
-        } else {
-          // Create new seller profile if it doesn't exist
-          sellerProfileData = await database
-            .insert(sellerProfile)
-            .values({
-              qualification,
-              experiance: experience,
-              description,
-              user_id: req.loggedInUserId,
-            })
-            .returning();
-        }
-      }
-
-      return successResponse(
-        res,
-        "User and seller profile updated successfully!",
-        {
-          userData,
-          sellerProfileData,
-        }
-      );
+      return successResponse(res, "User Data is updated!", data);
     }
   } catch (error) {
     return errorResponse(res, error.message, 500);

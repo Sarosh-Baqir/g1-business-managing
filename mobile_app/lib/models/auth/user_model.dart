@@ -78,11 +78,17 @@ class UserModel {
     );
   }
   factory UserModel.fromJsonGetMyData(Map<String, dynamic> json) {
-    // Check if 'data' is an object and not a list, as the response does not contain a list in 'data'
-    final userJson = json['data']['users']; // Access 'users' directly
-    final roleJson = json['data']['roles']; // Access 'roles' directly
-    final sellerProfileJson =
-        json['data']['sellerProfile']; // Access 'sellerProfile' directly
+    final userJson = (json['data'] is List && json['data'].isNotEmpty)
+        ? json['data'][0]['users']
+        : null;
+
+    final roleJson = (json['data'] is List && json['data'].isNotEmpty)
+        ? json['data'][0]['roles']
+        : null;
+
+    final sellerProfileJson = (json['data'] is List && json['data'].isNotEmpty)
+        ? json['data'][0]['sellerProfile']
+        : null;
 
     if (userJson == null) {
       throw Exception("Invalid or empty user data in response");
@@ -109,24 +115,19 @@ class UserModel {
               state: '',
               postalCode: '',
               country: '',
-              location: '',
-            ),
+              location: ''),
       bio: userJson['bio'] ?? '',
       isAdmin: userJson['is_admin'] ?? false,
       isVerified: userJson['is_verified'] ?? false,
       roleId: userJson['role_id'] ?? '',
-      isComplete: json['data']['is_complete'] ??
-          false, // Adjusted to access from the correct place
+      isComplete: json['is_complete'] ?? false,
       role: roleJson != null
           ? Roles.fromJson(roleJson)
           : Roles(id: '', title: '', permissions: []),
       sellerProfile: sellerProfileJson != null
           ? SellerProfile.fromJson(sellerProfileJson)
           : SellerProfile(
-              id: "",
-              qualification: "",
-              experiance: "",
-              description: ""), // Handle seller profile if it exists
+              id: "", qualification: "", experiance: "", description: ""),
     );
   }
 

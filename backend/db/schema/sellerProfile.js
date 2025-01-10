@@ -2,7 +2,7 @@ import { pgTable, uuid, text } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { user } from "./user.js";
 
-const sellerProfile = pgTable("seller_profile", {
+const sellerProfile = pgTable("sellerProfile", {
   id: uuid("id").defaultRandom().primaryKey(),
   qualification: text("qualilfication").notNull(),
   experiance: text("experiance"),
