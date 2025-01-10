@@ -448,45 +448,60 @@ const logOut = async (req, res) => {
 // End point to become a service provider
 const switchRole = async (req, res) => {
   try {
+    // Fetch current user data
     const userData = await database
       .select()
       .from(user)
       .where(eq(user.id, req.loggedInUserId))
       .leftJoin(role, eq(role.id, user.role_id))
-      .leftJoin(sellerProfile, eq(sellerProfile.id, user.id));
+      .leftJoin(sellerProfile, eq(sellerProfile.user_id, user.id)); // FIXED
+
+    // Check if the user is currently a customer
     if (userData[0].roles.title === USER_ROLE.CUSTOMER) {
+      // Switch to service provider role
       const roleData = await getOrCreateRole(USER_ROLE.SERVICE_PROVIDER);
-      const data = await database
+      await database
         .update(user)
         .set({
           role_id: roleData[0].id,
         })
         .where(eq(user.id, req.loggedInUserId))
         .returning();
-      const userData = await database
+
+      // Fetch updated user data
+      const updatedUserData = await database
         .select()
         .from(user)
         .where(eq(user.id, req.loggedInUserId))
         .leftJoin(role, eq(role.id, user.role_id))
-        .leftJoin(sellerProfile, eq(sellerProfile.id, user.id));
-      return successResponse(res, "User become a service provider!", userData);
-    }
-    const roleData = await getOrCreateRole(USER_ROLE.CUSTOMER);
+        .leftJoin(sellerProfile, eq(sellerProfile.user_id, user.id)); // FIXED
 
-    const data = await database
+      return successResponse(
+        res,
+        "User became a service provider!",
+        updatedUserData
+      );
+    }
+
+    // Switch to customer role
+    const roleData = await getOrCreateRole(USER_ROLE.CUSTOMER);
+    await database
       .update(user)
       .set({
         role_id: roleData[0].id,
       })
       .where(eq(user.id, req.loggedInUserId))
       .returning();
-    const userData2 = await database
+
+    // Fetch updated user data
+    const updatedUserData2 = await database
       .select()
       .from(user)
       .where(eq(user.id, req.loggedInUserId))
       .leftJoin(role, eq(role.id, user.role_id))
-      .leftJoin(sellerProfile, eq(sellerProfile.user_id, user.id));
-    return successResponse(res, "User become a customer!", userData2);
+      .leftJoin(sellerProfile, eq(sellerProfile.user_id, user.id)); // FIXED
+
+    return successResponse(res, "User became a customer!", updatedUserData2);
   } catch (error) {
     return errorResponse(res, error.message, 500);
   }

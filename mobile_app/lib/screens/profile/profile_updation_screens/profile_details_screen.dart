@@ -306,7 +306,7 @@ class ProfileDetailsScreen extends StatelessWidget {
                     title: const Text(
                       "Qaualification",
                       style: TextStyle(
-                          fontSize: 13, fontWeight: FontWeight.bold),
+                          fontSize: 13, fontWeight: FontWeight.w500),
                     ),
                     subtitle: Text(
                         "${authProvider.user?.sellerProfile?.qualification}",
@@ -318,7 +318,7 @@ class ProfileDetailsScreen extends StatelessWidget {
                     title: const Text(
                       "Experience",
                       style: TextStyle(
-                          fontSize: 13, fontWeight: FontWeight.bold),
+                          fontSize: 13, fontWeight: FontWeight.w500),
                     ),
                     subtitle: Text(
                         "${authProvider.user?.sellerProfile?.experiance}",
@@ -330,7 +330,7 @@ class ProfileDetailsScreen extends StatelessWidget {
                     title: const Text(
                       "Description",
                       style: TextStyle(
-                          fontSize: 13, fontWeight: FontWeight.bold),
+                          fontSize: 13, fontWeight: FontWeight.w500),
                     ),
                     subtitle: Text(
                         authProvider.user?.sellerProfile?.description ?? "",
