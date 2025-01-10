@@ -145,7 +145,7 @@ class AuthService {
     try {
       final response = await http.get(url,
           headers: _generateHeaders(accessToken: accessToken));
-    print(response.body);
+      print(response.body);
       return response; // Returning the http.Response
     } catch (e) {
       print("Error occurred: $e");
@@ -425,6 +425,38 @@ class AuthService {
       return response;
     } catch (e) {
       throw Exception('Failed to fetch profile completion: $e');
+    }
+  }
+
+  Future<http.Response> completeSellerProfile({
+    required String qualification,
+    required String experience,
+    required String description,
+  }) async {
+    final url = Uri.parse(
+        '${Constants.baseUrl}${Constants.userApiPath}/complete-seller-profile');
+    final accessToken = await getAccessToken();
+    if (accessToken == null) {
+      throw Exception("Access token is missing.");
+    }
+    // Prepare the body with user profile data
+    final body = json.encode({
+      'qualification': qualification,
+      'experiance': experience,
+      'description': description,
+    });
+
+    try {
+      final response = await http.patch(
+        url,
+        headers: _generateHeaders(accessToken: accessToken),
+        body: body,
+      );
+      print(response.body);
+      return response; // Return the http.Response object
+    } catch (e) {
+      print('Error completing profile: $e');
+      throw Exception('Failed to complete profile');
     }
   }
 }

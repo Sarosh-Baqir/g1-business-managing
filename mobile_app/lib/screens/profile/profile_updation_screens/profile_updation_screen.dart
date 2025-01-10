@@ -1,16 +1,12 @@
 // ignore_for_file: use_build_context_synchronously
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:e_commerce/common/buttons/custom_gradient_button.dart';
 import 'package:e_commerce/common/snakbar/custom_snakbar.dart';
 import 'package:e_commerce/common/text_form_fields/custom_text_form_field.dart';
 import 'package:e_commerce/providers/authentication/authentication_provider.dart';
 import 'package:e_commerce/providers/profile_updation/profile_updation_provider.dart';
-import 'package:e_commerce/utils/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:iconly/iconly.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
 class ProfileCompleteScreen extends StatelessWidget {
@@ -28,7 +24,7 @@ class ProfileCompleteScreen extends StatelessWidget {
           appBar: AppBar(
             centerTitle: true,
             title: const Text(
-              "Complete Your Profile",
+              "Complete Your Buyer Profile",
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
             ),
           ),
@@ -42,144 +38,7 @@ class ProfileCompleteScreen extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const SizedBox(height: 5),
-                      const Text(
-                        "Profile Photo",
-                        style: TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.w700),
-                      ),
-                      const SizedBox(height: 5),
-                      const Text(
-                        "Please add a profile photo that clearly shows your face. It’ll help hosts and guests recognize you at the beginning of a trip.",
-                        style: TextStyle(
-                            fontSize: 12, fontWeight: FontWeight.w300),
-                      ),
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      Center(
-                        child: Stack(
-                          children: [
-                            Container(
-                              width: 80,
-                              height: 80,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: Colors.grey.shade300,
-                              ),
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(34.0),
-                                child: CachedNetworkImage(
-                                  imageUrl: authProvider.user!.profilePicture!,
-                                  fit: BoxFit.cover,
-                                  placeholder: (context, url) => const Center(
-                                    child: SizedBox(
-                                      width: 40.0,
-                                      height: 40.0,
-                                      child: CircularProgressIndicator(
-                                        color: Colors.black,
-                                      ),
-                                    ),
-                                  ),
-                                  errorWidget: (context, url, error) {
-                                    debugPrint('Image load error: $error');
-                                    return Image.asset(
-                                        'assets/images/default_avatar.png');
-                                  },
-                                ),
-                              ),
-                            ),
-                            Positioned(
-                              bottom: 0,
-                              right: 0,
-                              child: CircleAvatar(
-                                radius: 15,
-                                child: InkWell(
-                                    onTap: () async {
-                                      // Show dialog to choose from gallery or camera
-                                      await showModalBottomSheet(
-                                        backgroundColor: isDarkMode
-                                            ? AppTheme.fMainColor
-                                            : Colors.white,
-                                        context: context,
-                                        builder: (context) {
-                                          return Column(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              ListTile(
-                                                leading: const Icon(
-                                                    IconlyLight.camera),
-                                                title:
-                                                    const Text('Take a photo'),
-                                                onTap: () async {
-                                                  final statusCode =
-                                                      await profileUpdationProvider
-                                                          .pickProfileImage(
-                                                              context,
-                                                              ImageSource
-                                                                  .camera);
-                                                  Navigator.pop(context);
-                                                  if (statusCode == 200) {
-                                                    showCustomSnackBar(
-                                                      context,
-                                                      'Profile photo updated successfully!',
-                                                      Colors.green,
-                                                    );
-                                                  } else {
-                                                    showCustomSnackBar(
-                                                      context,
-                                                      'Failed to update profile photo!',
-                                                      Colors.red,
-                                                    );
-                                                  }
-                                                },
-                                              ),
-                                              ListTile(
-                                                leading: const Icon(
-                                                    IconlyLight.image),
-                                                title: const Text(
-                                                    'Choose from gallery'),
-                                                onTap: () async {
-                                                  final statusCode =
-                                                      await profileUpdationProvider
-                                                          .pickProfileImage(
-                                                              context,
-                                                              ImageSource
-                                                                  .gallery);
-                                                  Navigator.pop(context);
-                                                  if (statusCode == 200) {
-                                                    showCustomSnackBar(
-                                                      context,
-                                                      'Profile photo updated successfully!',
-                                                      Colors.green,
-                                                    );
-                                                  } else {
-                                                    showCustomSnackBar(
-                                                      context,
-                                                      'Failed to update profile photo!',
-                                                      Colors.red,
-                                                    );
-                                                  }
-                                                },
-                                              ),
-                                            ],
-                                          );
-                                        },
-                                      );
-                                    },
-                                    child: const Icon(Icons.add)),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      const Text(
-                        "About",
-                        style: TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.w700),
-                      ),
-                      const SizedBox(height: 5),
+                      
                       Text(
                         "Tell customers and service providers about yourself and why you’re a reasonable.",
                         style: TextStyle(
@@ -229,7 +88,6 @@ class ProfileCompleteScreen extends StatelessWidget {
                           fillColor: isDarkMode
                               ? ThemeData().scaffoldBackgroundColor
                               : Colors.white,
-                          
                           labelStyle: TextStyle(
                               color: isDarkMode
                                   ? Colors.white

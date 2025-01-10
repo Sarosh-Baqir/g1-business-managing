@@ -566,6 +566,54 @@ class AuthenticationProvider extends ChangeNotifier {
     }
   }
 
+  Future<int> completeSellerProfile(
+    String qualification,
+    String experience,
+    String description,
+  ) async {
+    try {
+      _isLoading = true;
+      notifyListeners();
+
+      final response = await _authService
+          .completeSellerProfile(
+              qualification: qualification,
+              experience: experience,
+              description: description)
+          .timeout(const Duration(seconds: 10));
+
+      _isLoading = false;
+      notifyListeners();
+
+      print('Status Code: ${response.statusCode}');
+      print('Response Body: ${response.body}');
+
+      // if (response.statusCode == 200) {
+      //   final responseData = json.decode(response.body);
+
+      //   if (responseData['success'] == true) {
+      //     // Access the first object in the 'data' list
+      //     final userData = responseData['data'];
+      //     _user = UserModel.fromJson(userData);
+
+      //     notifyListeners();
+      //     return 200; // Success
+      //   } else {
+      //     print('Error Message: ${responseData['message']}');
+      //     return 400; // Handle failure response gracefully
+      //   }
+      // }
+
+      // Return status code if not 200
+      return response.statusCode;
+    } catch (e) {
+      _isLoading = false;
+      notifyListeners();
+      print('Error: $e');
+      return -1; // Return -1 for network or unexpected errors
+    }
+  }
+
   // Future<Map<String, dynamic>?> registerWithGoogle({
   //   required String email,
   //   required String displayName,

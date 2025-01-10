@@ -21,6 +21,16 @@ class ProfileUpdationProvider extends ChangeNotifier {
   final TextEditingController addressStreetNumberController =
       TextEditingController();
 
+  final TextEditingController qualificationController = TextEditingController();
+
+  final TextEditingController experienceController = TextEditingController();
+
+  final TextEditingController descriptionController = TextEditingController();
+
+  final _sellerProfileCompleteFormKey = GlobalKey<FormState>();
+  GlobalKey<FormState> get sellerProfileCompleteFormKey =>
+      _sellerProfileCompleteFormKey;
+
   String? selectedGender;
   // Replace TextEditingController with a String variable
   final TextEditingController bioController = TextEditingController();
@@ -39,6 +49,11 @@ class ProfileUpdationProvider extends ChangeNotifier {
   bool validateProfileUpdationForm() {
     // Ensure the form state is valid
     return _profileCompleteFormKey.currentState?.validate() ?? false;
+  }
+
+  bool validateSellerProfileUpdationForm() {
+    // Ensure the form state is valid
+    return _sellerProfileCompleteFormKey.currentState?.validate() ?? false;
   }
 
   Future<int> pickProfileImage(BuildContext context, ImageSource source) async {

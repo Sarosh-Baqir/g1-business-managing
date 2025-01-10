@@ -1,8 +1,10 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:e_commerce/common/slide_page_routes/slide_page_route.dart';
+import 'package:e_commerce/models/auth/seller_profile.dart';
 import 'package:e_commerce/providers/authentication/authentication_provider.dart';
 import 'package:e_commerce/providers/profile_updation/profile_updation_provider.dart';
 import 'package:e_commerce/screens/profile/profile_updation_screens/profile_updation_screen.dart';
+import 'package:e_commerce/screens/profile/profile_updation_screens/seller_mode_profile_completion.dart';
 import 'package:e_commerce/utils/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:iconly/iconly.dart';
@@ -167,46 +169,6 @@ class ProfileDetailsScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(
-                    height: 20,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 15),
-                    child: Column(
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text(
-                              "Profile Completion",
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            Icon(
-                                authProvider.user!.isComplete == true
-                                    ? IconlyLight.tick_square
-                                    : Icons.error,
-                                size: 25,
-                                color: authProvider.user!.isComplete == true
-                                    ? AppTheme.fMainColor
-                                    : Colors.red),
-                          ],
-                        ),
-                        const SizedBox(
-                          height: 5,
-                        ),
-                        const Text(
-                          'Profile with personal info and connected with email appear more trustworthy.',
-                          style: TextStyle(
-                              color: Colors.grey,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(
                     height: 10,
                   ),
                   const Divider(),
@@ -230,7 +192,7 @@ class ProfileDetailsScreen extends StatelessWidget {
                     child: Row(
                       children: [
                         Text(
-                          "About",
+                          "Buyer Profile",
                           style: TextStyle(
                               color: AppTheme.fMainColor,
                               fontWeight: FontWeight.bold,
@@ -275,7 +237,7 @@ class ProfileDetailsScreen extends StatelessWidget {
                   customListTileMethod(
                       "National ID Card", "${authProvider.user?.cnic}"),
                   const Divider(),
-                  customListTileMethod("National ID Card",
+                  customListTileMethod("Gender",
                       "${authProvider.user?.gender.toString().toUpperCase()}"),
                   const Divider(),
                   customListTileMethod(
@@ -293,6 +255,88 @@ class ProfileDetailsScreen extends StatelessWidget {
                   customListTileMethod(
                       'Postal Code', authProvider.user!.address!.postalCode),
                   const Divider(),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 15),
+                    child: Row(
+                      children: [
+                        Text(
+                          "Seller Profile",
+                          style: TextStyle(
+                              color: AppTheme.fMainColor,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16),
+                        ),
+                        const Spacer(),
+                        InkWell(
+                          onTap: () {
+                            if (authProvider.user?.role?.title ==
+                                "service_provider") {
+                              Navigator.of(context).push(
+                                SlidePageRoute(
+                                  page: const SellerModeProfileCompletion(),
+                                ),
+                              );
+                            } else {
+                              showCustomSnackBar(
+                                  context,
+                                  "Enable your service provider mode to complete this info!",
+                                  Colors.red);
+                            }
+                          },
+                          child: Text(
+                            "Edit",
+                            style: TextStyle(
+                              color: AppTheme.fMainColor,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  const Divider(),
+                  ListTile(
+                    title: const Text(
+                      "Qaualification",
+                      style: TextStyle(
+                          fontSize: 13, fontWeight: FontWeight.bold),
+                    ),
+                    subtitle: Text(
+                        "${authProvider.user?.sellerProfile?.qualification}",
+                        style: const TextStyle(
+                            fontSize: 13, fontWeight: FontWeight.w400)),
+                  ),
+                  const Divider(),
+                  ListTile(
+                    title: const Text(
+                      "Experience",
+                      style: TextStyle(
+                          fontSize: 13, fontWeight: FontWeight.bold),
+                    ),
+                    subtitle: Text(
+                        "${authProvider.user?.sellerProfile?.experiance}",
+                        style: const TextStyle(
+                            fontSize: 13, fontWeight: FontWeight.w400)),
+                  ),
+                  const Divider(),
+                  ListTile(
+                    title: const Text(
+                      "Description",
+                      style: TextStyle(
+                          fontSize: 13, fontWeight: FontWeight.bold),
+                    ),
+                    subtitle: Text(
+                        authProvider.user?.sellerProfile?.description ?? "",
+                        style: const TextStyle(
+                            fontSize: 13, fontWeight: FontWeight.w400)),
+                  ),
                   const SizedBox(
                     height: 10,
                   ),
