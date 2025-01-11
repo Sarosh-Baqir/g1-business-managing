@@ -208,7 +208,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         if (authProvider
                                 .profileCompletion?.sellerCompletionPercentage
                                 .toString() !=
-                            "100%") {
+                            "100") {
                           showCustomSnackBar(
                               context,
                               'Please complete your seller profile to create a new service.',
@@ -238,7 +238,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         if (authProvider
                                 .profileCompletion?.sellerCompletionPercentage
                                 .toString() !=
-                            "100%") {
+                            "100") {
                           showCustomSnackBar(
                               context,
                               'Please complete your seller profile to view your services.',

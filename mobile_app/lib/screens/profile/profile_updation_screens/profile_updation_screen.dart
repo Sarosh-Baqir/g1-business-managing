@@ -38,7 +38,6 @@ class ProfileCompleteScreen extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      
                       Text(
                         "Tell customers and service providers about yourself and why you’re a reasonable.",
                         style: TextStyle(
@@ -268,6 +267,8 @@ class ProfileCompleteScreen extends StatelessWidget {
                                 "Profile is Updated!",
                                 Colors.green,
                               );
+                              authProvider.getProfileCompletion();
+                              authProvider.getUserData();
                               Navigator.pop(context);
                             } else {
                               showCustomSnackBar(
