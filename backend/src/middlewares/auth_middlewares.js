@@ -60,7 +60,6 @@ const authorization =
   (...permissions) =>
   async (req, res, next) => {
     try {
-      console.log("in authorization middleware");
       const loggedInUserId = req.loggedInUserId;
       const data = await database
         .select()
@@ -72,7 +71,6 @@ const authorization =
       if (!data[0].users.is_admin && data[0].roles.title !== permissions[0]) {
         return errorResponse(res, "Forbidden", 403);
       }
-      console.log("Ahsan");
       next();
     } catch (error) {
       return errorResponse(res, error.message, 500);

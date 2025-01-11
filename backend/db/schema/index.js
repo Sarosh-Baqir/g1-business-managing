@@ -14,6 +14,7 @@ import { wallet, walletRelations } from "./wallet.js";
 import { review, reviewRelations } from "./review.js";
 import message from "./message.js";
 import conversation from "./conversation.js";
+import { category } from "./category.js";
 
 const schema = [
   user,
@@ -37,6 +38,7 @@ const schema = [
   walletRelations,
   message,
   conversation,
+  category,
   // Add more schemas as needed
 ];
 
