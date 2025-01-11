@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 const fetchServiceSchema = z.object({
+  category_id: z.string().uuid({ message: "id must be a uuid" }).optional(),
   service_id: z.string().uuid({ message: "id must be a uuid" }).optional(),
 });
 
@@ -11,6 +12,7 @@ const createServiceSchema = z.object({
     .min(1)
     .regex(/^[A-Za-z\s]+$/),
   description: z.string().min(1).max(1000),
+  category_id: z.string().uuid({ message: "category_id must be a uuid" }),
   price: z.number().positive(),
   is_available: z.boolean(),
   start_time: z.string().min(1),

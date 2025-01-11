@@ -20,6 +20,7 @@ import * as order from "./schema/order.js";
 import * as review from "./schema/review.js";
 import message from "./schema/message.js";
 import conversation from "./schema/conversation.js";
+import * as category from "./schema/category.js";
 
 const { Pool } = pkg;
 
@@ -66,5 +67,6 @@ export const database = drizzle(pool, {
     ...review,
     message,
     conversation,
+    ...category,
   },
 });
