@@ -9,8 +9,15 @@ import { USER_ROLE } from "../utils/constants.js";
 
 const bookOrder = async (req, res) => {
   try {
-    const { order_date, service_id, additional_notes, payment_method } =
-      req.body;
+    const {
+      order_date,
+      service_id,
+      additional_notes,
+      bidding_amount,
+      payment_method,
+      order_completion_date,
+      is_offer,
+    } = req.body;
     const ismyOwnService = await database.query.service.findFirst({
       where: and(
         eq(service.id, service_id),
@@ -30,6 +37,7 @@ const bookOrder = async (req, res) => {
     });
     if (!serviceData)
       return errorResponse(res, "This service is not available.", 400);
+
     const serviceProvider = await database.query.user.findFirst({
       where: eq(user.id, serviceData.user_id),
     });
@@ -50,48 +58,49 @@ const bookOrder = async (req, res) => {
         400
       );
     }
-    // try {
-    //      await sendEmail("Order Booked Successfully!", `Hello ${loggedInUser.first_name}`, `<h1>Hello ${loggedInUser.first_name} ${loggedInUser.last_name}</h1><p>You have booked a new order with service named as ${serviceData.service_name}. Please go to your orders for further information.</p>`, loggedInUser.email);
-    //      await sendEmail("Got New Order!", `Hello ${serviceProvider.first_name}`, `<h1>Hello ${serviceProvider.first_name} ${serviceProvider.last_name}</h1><p>You got a new order with service named as ${serviceData.service_name}. Please go to your orders for further information.</p>`, serviceProvider.email);
 
-    //     const data = await database
-    //     .insert(order)
-    //     .values({
-    //         customer_id:req.loggedInUserId,
-    //         service_id,
-    //         service_provider_id: serviceProvider.id,
-    //         order_date,
-    //         order_price: serviceData.price,
-    //         customer_address:loggedInUser.address,
-    //         additional_notes,
-    //         payment_method
-    //     })
-    //         .returning()
+    // // Determine order price and bidding amount
+    // const orderPrice = bidding_amount ? 0 : serviceData.price; // Set to 0 if bidding_amount exists
+    // const biddingAmount = bidding_amount || 0; // Set to 0 if not provided
 
-    //         return successResponse(res, "Order Booked Successfully!", {
-    //             data,
-    //     })
-    //   } catch (error) {
-    //     return errorResponse(res, `Error in sending email = ${error.message}`, 400);
-    //   }
+    if (is_offer) {
+      const data = await database
+        .insert(order)
+        .values({
+          customer_id: req.loggedInUserId,
+          service_id,
+          service_provider_id: serviceProvider.id,
+          order_date,
+          order_price: 0,
+          bidding_amount: bidding_amount,
+          customer_address: loggedInUser.address,
+          order_completion_date,
+        })
+        .returning();
+      return successResponse(res, "Custom Offer Sent Successfully!", {
+        data,
+      });
+    } else {
+      const data = await database
+        .insert(order)
+        .values({
+          customer_id: req.loggedInUserId,
+          service_id,
+          service_provider_id: serviceProvider.id,
+          order_date,
+          order_price: serviceData.price,
+          bidding_amount: 0,
+          customer_address: loggedInUser.address,
+          additional_notes,
+          payment_method,
+          order_completion_date,
+        })
+        .returning();
 
-    const data = await database
-      .insert(order)
-      .values({
-        customer_id: req.loggedInUserId,
-        service_id,
-        service_provider_id: serviceProvider.id,
-        order_date,
-        order_price: serviceData.price,
-        customer_address: loggedInUser.address,
-        additional_notes,
-        payment_method,
-      })
-      .returning();
-
-    return successResponse(res, "Order Booked Successfully!", {
-      data,
-    });
+      return successResponse(res, "Order Booked Successfully!", {
+        data,
+      });
+    }
   } catch (error) {
     return errorResponse(res, error.message, 500);
   }
@@ -126,6 +135,39 @@ const updateOrder = async (req, res) => {
       .returning();
 
     return successResponse(res, "Order updated successfully!", data);
+  } catch (error) {
+    return errorResponse(res, error.message, 500);
+  }
+};
+
+const updateOrderPrice = async (req, res) => {
+  try {
+    const order_id = req.params.order_id;
+    const { order_price } = req.body;
+
+    const isOrder = await database.query.order.findFirst({
+      where: and(
+        eq(order.customer_id, req.loggedInUserId),
+        eq(order.id, order_id)
+      ),
+    });
+    if (!isOrder)
+      return errorResponse(
+        res,
+        "Not Allowed! This order is not available.",
+        400
+      );
+
+    // Update the Order
+    const data = await database
+      .update(order)
+      .set({
+        bidding_amount: order_price,
+      })
+      .where(eq(order.id, order_id))
+      .returning();
+
+    return successResponse(res, "Order Price updated successfully!", data);
   } catch (error) {
     return errorResponse(res, error.message, 500);
   }
@@ -178,7 +220,7 @@ const cancelOrder = async (req, res) => {
 const acceptorRejectorCompleteOrder = async (req, res) => {
   try {
     const order_id = req.params.order_id;
-    const { order_status } = req.body;
+    const { order_status, is_offer, payment_method } = req.body;
     const isOrder = await database.query.order.findFirst({
       where: and(
         eq(order.service_provider_id, req.loggedInUserId),
@@ -254,16 +296,35 @@ const acceptorRejectorCompleteOrder = async (req, res) => {
 
       return successResponse(res, `Order ${order_status} successfully!`, data);
     }
-    const data = await database
-      .update(order)
-      .set({
-        order_status: order_status,
-        payment_status: "pending",
-      })
-      .where(eq(order.id, order_id))
-      .returning();
 
-    return successResponse(res, `Order ${order_status} successfully!`, data);
+    if (!is_offer) {
+      const data = await database
+        .update(order)
+        .set({
+          order_status: order_status,
+          payment_status: "pending",
+        })
+        .where(eq(order.id, order_id))
+        .returning();
+
+      return successResponse(res, `Order ${order_status} successfully!`, data);
+    } else {
+      const data = await database
+        .update(order)
+        .set({
+          payment_method,
+          order_price: isOrder.bidding_amount,
+          order_status: "processing",
+          payment_status: "pending",
+        })
+        .where(eq(order.id, order_id))
+        .returning();
+      return successResponse(
+        res,
+        `Offer has been accepted successfully!`,
+        data
+      );
+    }
   } catch (error) {
     return errorResponse(res, error.message, 500);
   }
@@ -324,10 +385,25 @@ const getMyOrders = async (req, res) => {
   }
 };
 
+const getOrderDetail = async (req, res) => {
+  try {
+    const order_id = req.params.order_id;
+    const Order = await database.query.order.findFirst({
+      where: eq(order.id, order_id),
+    });
+
+    return successResponse(res, `Order Detail fetched successfully!`, Order);
+  } catch (error) {
+    return errorResponse(res, error.message, 500);
+  }
+};
+
 export {
   bookOrder,
   updateOrder,
+  updateOrderPrice,
   cancelOrder,
   acceptorRejectorCompleteOrder,
   getMyOrders,
+  getOrderDetail,
 };

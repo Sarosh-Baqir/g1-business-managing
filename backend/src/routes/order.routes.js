@@ -7,9 +7,11 @@ import {
 import {
   bookOrder,
   updateOrder,
+  updateOrderPrice,
   cancelOrder,
   acceptorRejectorCompleteOrder,
   getMyOrders,
+  getOrderDetail,
 } from "../controllers/order.controller.js";
 import { USER_ROLE } from "../utils/constants.js";
 import {
@@ -17,10 +19,12 @@ import {
   updateOrderValidationSchema,
   cancelOrderValidationSchema,
   serviceProviderAcceptorCancelorDeleteOrderValidationSchema,
+  updateOrderPriceValidationSchema,
 } from "../validation_schemas/order.validation.schemas.js";
 import { validationMiddleware } from "../middlewares/validation_schema.js";
 
 router.get("/", authentication, getMyOrders);
+router.get("/:order_id", authentication, getOrderDetail);
 router.post(
   "/",
   authentication,
@@ -32,6 +36,12 @@ router.patch(
   authentication,
   validationMiddleware(updateOrderValidationSchema, (req) => req.body),
   updateOrder
+);
+router.patch(
+  "/updatePrice/:order_id",
+  authentication,
+  validationMiddleware(updateOrderPriceValidationSchema, (req) => req.body),
+  updateOrderPrice
 );
 router.patch(
   "/cancel/:order_id",

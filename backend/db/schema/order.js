@@ -43,14 +43,15 @@ const order = pgTable("orders", {
   placed_at: timestamp("placed_date").notNull().defaultNow(),
   order_date: timestamp("order_date", { mode: "string" }).notNull(),
   order_status: orderStatusEnum("order_status").default("pending").notNull(),
-  order_price: decimal("order_price").notNull(),
+  order_price: decimal("order_price"),
+  bidding_amount: decimal("bidding_amount"),
   payment_status: paymentStatusEnum("payment_status")
     .default("pending")
     .notNull(),
   payment_method: paymentMethodEnum("payment_method").default("cod").notNull(),
   customer_address: json("customer_address").notNull(),
   additional_notes: text("additional_notes"),
-  order_completion_date: timestamp("order_completion_date"),
+  order_completion_date: timestamp("order_completion_date", { mode: "string" }),
   cancellation_reason: text("cancellation_reason"),
 });
 
