@@ -9,7 +9,7 @@ const createReview = async (req, res) => {
   try {
     const user_id = req.loggedInUserId;
 
-    const { service_id, review_message, rating } = req.body;
+    const { service_id, order_id, review_message, rating } = req.body;
 
     const isMyOwnService = await database.query.service.findFirst({
       where: and(eq(service.user_id, user_id), eq(service.id, service_id)),
@@ -21,28 +21,24 @@ const createReview = async (req, res) => {
         400
       );
     }
-    const alreadyAddedReview = await database.query.review.findFirst({
+
+    // const isOrderNotCompleted = await database.query.order.findFirst({
+    //   where: and(
+    //     eq(order.customer_id, user_id),
+    //     eq(order.service_id, service_id),
+    //     eq(order.order_status, "completed")
+    //   ),
+    // });
+    const isOrderCompleted = await database.query.order.findFirst({
       where: and(
-        eq(review.reviewer_id, user_id),
-        eq(review.service_id, service_id)
-      ),
-    });
-    if (alreadyAddedReview) {
-      return errorResponse(
-        res,
-        "Not Allowed! You already added a review against this service",
-        400
-      );
-    }
-    const isOrderNotCompleted = await database.query.order.findFirst({
-      where: and(
+        eq(order.id, order_id),
         eq(order.customer_id, user_id),
         eq(order.service_id, service_id),
         eq(order.order_status, "completed")
       ),
     });
-    console.log("order", isOrderNotCompleted);
-    if (!isOrderNotCompleted) {
+    console.log("order", isOrderCompleted);
+    if (!isOrderCompleted) {
       return errorResponse(
         res,
         "Not Allowed! This order is not completed yet.",

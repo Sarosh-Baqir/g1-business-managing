@@ -6,6 +6,7 @@ const deleteReviewSchema = z.object({
 
 const createReviewSchema = z.object({
   service_id: z.string().uuid({ message: "service_id must be a uuid" }),
+  order_id: z.string().uuid({ message: "order_id must be a uuid" }),
   review_message: z.string().min(1).max(1000),
   rating: z.number().int().min(1).max(5),
 });
